@@ -1,0 +1,204 @@
+Project Overview
+Description
+	The use case is to determine and figure out what type of database pipelines there are to use and which pipeline is the best to use in different scenarios. The scenarios can include: real time updates, batch processing, long term storage, accessiblity, and different types of data. For each of the following pipelines, the ETL procedure of extraction, transformation, and loading was used and different OLTP and OLAP queries were implemented if applicable. Each pipeline was also tested for performance optimization and how well they were able to analyze data. 
+ 
+ 
+Data
+	The Yelp dataset was used for each of the pipelines. The dataset contained information on Users, Businesses, Reviews, and other relevant information. 
+ 
+Bird’s Eye View
+	The following tools were used in the analysis: mySQL, Spark, and Hadoop
+ 
+mySQL 
+	1.	Capture
+		a.	Took too much time just trying to download the csv files
+		b.	Tried to go through process of cleaning up csv file and creating schema
+		c.	Had trouble with the lists inside the data
+			i.	Ie [n’Fri-0:2’, n’Sat-0:3’,…]
+				1.	Best guess is probably about partitions 
+		d.	Ultimately gave up after some messing around and use sql file uploaded by Rohan for 3 tables (business, review, and user)
+			i.	Computer kept freezing or pausing download when downloading CSV files
+	2.	Access	
+		a.	Did some quick queries to make sure that data was there (see examples below) and refreshed memory
+		b.	Did simple and batch updates
+			i.	INSERT INTO user VALUES ('007', 'Bond', 0, curdate(),'', 0,0,0,0,'0',0,9000,0,0,0,0,0,0,0,0,0,0, 'user');
+			ii.	UPDATE user
+				SET elite = '2017'
+				WHERE useful > 100;
+	3.	Optimize
+		a.	Did try out some simple vs complex queries involving multiple tables
+			i.	Simpler queries with 1 table took < 5 sec
+			ii.	More complex queries with joins and aggregation could take several minutes
+		b.	Did not use indexes and materialized views for optimization as have not finished loading all data – computer kept freezing
+		c.	Did not use any partitioning
+	4.	Data Quality
+		a.	Did not add primary and foreign keys or constraints
+	---------------------------------------------------------------------------------------------------------------------
+
+	1.	Queries
+	a.	Basic-Can join multiple tables 
+	--joins review and user and gets the total number of reviewers who have given at 
+	--least 1 2 star or below rating
+
+	SELECT count(distinct user.user_id) as lowReviewers
+	FROM review, user
+	WHERE user.user_id = review.user_id
+	AND review.stars<2;
+	b.	More complex-Can do group by and aggregation
+	--gets the total number of users for each business where the user wrote a low 
+	--review 
+
+	SELECT COUNT(u.user_id), b.name FROM review r, business b, user u 
+	WHERE r.business_id = b.business_id 
+	AND r.user_id = u.user_id
+	AND r.stars < 2
+	GROUP BY b.business_id;
+	c.	Advanced
+	--gets the total number of reviewers who left low rating and total number of 
+	--reviewers who left high ratings for each business
+
+	SELECT a.name, numLowReviewers, numHighReviewers
+	FROM
+	(
+	SELECT COUNT(distinct u.user_id) as numLowReviewers, b.name FROM review r, business b, user u 
+	WHERE r.business_id = b.business_id 
+	AND r.user_id = u.user_id
+	AND r.stars < 2
+	GROUP BY b.business_id
+	) as j 
+
+	JOIN 
+
+	(
+	SELECT COUNT(distinct u.user_id) as numHighReviewers, b.name FROM review r, business b, user u 
+	WHERE r.business_id = b.business_id 
+	AND r.user_id = u.user_id
+	AND r.stars > 4
+	GROUP BY b.business_id) as k
+	ON j.name=k.name;
+
+
+Spark 
+	Batch Processing:
+
+		Had trouble just figuring out where to start. 
+			Use CSV? Json? 
+			
+			What language to use? Scala? Python? + Which had the most documentation? 
+
+	- extract: extract "historical" data (everything before the last date stamp / as much data as you need face Big Data challenges (remember: volume, variety, veracity, velocity) 
+
+	- load: load data into your Big Data Refinery to run Spark scripts 
+
+			Loaded json data from business, tip, user, review data into Tables
+			
+			** Have to make note of file path if want to use it instead of the tables that were created 
+				ie 	/FileStore/tables/sfnoy7v21492146573321/yelp_academic_dataset_checkin.json
+					/FileStore/tables/sfnoy7v21492146573321/yelp_academic_dataset_business.json
+					/FileStore/tables/sfnoy7v21492146573321/yelp_academic_dataset_tip.json
+			
+			Used Json because csv files not clean 
+			
+			
+			Used Spark DataFrame to get data 
+			
+			ex 
+				val df = spark.read.json("/FileStore/tables/sfnoy7v21492146573321/yelp_academic_dataset_business.json")
+
+				//filter dataframe based on city 
+
+				df.groupBy("city").count().show()
+			
+	- query: for a given analytical query, write a spark script to compute results 
+
+	- update: what needs to be done to compute updated results? discuss a strategy to handle updates. 
+
+	- optimize
+			Decided to try and use cacheing for quick access to certain data frames/tables 
+			
+			-> can call using spark.cacheTable("tableName") or dataFrame.cache()
+			
+			can uncache with spark.uncacheTable("tableName") to remove it from memory 
+			
+			After caching the current dataframe that held the business info, execution time decreased from 2.88 sec to 1.63 sec
+				This is a 8.7% increase 
+				
+				However, since the query was simple, for a more difficult query, caching the table/data frame would have a bigger effect
+	-- optimize quality: what can be done to maintain data quality? discuss and if applicable, implement strategies to maintain/improve data quality
+
+	-- optimize performance: show performance for your script above, discuss and if applicable, implement strategies to optimize the performance of that script
+	
+Hadoop 
+
+	- extract: extract "historical" data 
+	(everything before the last date stamp / as much data as you need face Big Data challenges) 
+	(remember: volume, variety, veracity, velocity) 
+
+		Used same data csv files from SQL pipeline
+		
+	- load: load data into your Big Data Refinery to run Hadoop MR / Pig / Hive scripts 
+		
+		Setup: 
+		
+		Before loading, first had to sign up for Azure since computer only had 8 GB ram and Hortonworks needs 
+		8 GB ram or more. If tried to run Hortonworks in VM with 8 GB, then computer would freeze since 
+		Hortonworks would use up all computing power and take over space needed to run OS. 
+		
+		After downloading Azure, setup Hortonworks.
+		
+		Ran into problems trying to SSH into Azure and go to the Ambari sign in page. Tried to follow 
+		instructions for set up, but got to homepage differently. Just used ip address of azure and added port 8080 at the end 
+		
+		Also ran into miscellaneous computer problems where my computer would disconnect from wifi and 
+		require a hard reset in order to connect to any wifi.
+		
+		Load: 
+		
+		Loaded data using Ambari 
+		
+		More problems 
+			Tried to go to Ambari homepage using the azure public ip address and says that the page is taking 
+			too long to respond and time out error
+			
+			Trying to ssh using Putty, but connection keeps getting refused for my localhost ip address 
+	- query: for a given analytical query, write a Hadoop MR or Pig or Hive script to compute results -
+
+	- update: what needs to be done to compute updated results? discuss a strategy to handle updates. 
+
+	- optimize
+
+	-- optimize quality: what can be done to maintain data quality? 
+	discuss and if applicable, implement strategies to maintain/improve data quality
+
+	-- optimize performance: show performance for your script above, 
+	discuss and if applicable, implement strategies to optimize the performance of that script
+	
+Voldemort 
+	Voldemort is a key value pair. This can be compared to a hash table in that every key maps to exactly 1 value. 
+	Voldemort is not a relational database so values do not have to satisfy any conditions before they are added to the database.
+	Partitioning is done automatically so that all the data is split into subsets and stored in different servers.
+	
+	There are 3 main operations that can be executed 
+		put(key, value)
+		get(key, value)
+		delete(key)
+	
+	Running Voldemort by itself doesn't allow you to fully utilize voldemort if you need to import or run queries on large amounts of data. 
+	
+	Via the command line, you can really only get or put 1 value in at a time into the database. 
+	On the other hand if you wrote a script to read in a CSV file and utilize the Voldemort put command, then you could quickly 
+	populate your database. 
+	
+	Voldemort is run in the command line, but first you have to get Voldemoret. 
+	This can be done with 3 commands (after starting up a terminal with bash available)
+		clone the repository with the Voldemort code 
+			git clone https://github.com/voldemort/voldemort
+		then go into the directory that was just created 
+			cd voldemort 
+		then try and build it 
+			./gradlew build -x test
+			
+		I ran into problems in the third step. 
+		See build problems.jpg
+		
+		In this case, google is your best bet to use 
