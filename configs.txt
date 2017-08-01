@@ -1,0 +1,40 @@
+--- need .mrjob.config under ./
+
+runners:
+  emr:
+    cmdenv:
+      TZ: America/Los_Angeles
+	aws_access_key_id: HADOOPHADOOPBOBADOOP
+    aws_secret_access_key: MEMIMOMADOOPBANANAFANAFOFADOOPHADOOP
+    ec2_key_pair: emr
+    ec2_key_pair_file: ~/.ssh/emr.pem # ~/ and $ENV_VARS allowed here
+    ssh_tunnel: true
+	core_instance_type: m1.small
+    num_core_instances: 1
+    region: us-west-1
+
+
+------ need to put emr.pem under ~/.ssh
+-----BEGIN RSA PRIVATE KEY-----
+MIIEowIBAAKCAQEAiff6SklmRA0vUDy8fnuEqCPXgUeeNJL78j2elyrbOk12MSbGxvc6C0aQsKlK
+iUIP6MPv9IK2fKYLwJTDN2C+Q4XCkMb84PLipLCGVgGrhS53qDhhezO45S0csxg7DnbVOamcTrpb
+kzi76mH9KGUb1DkHFpYr13WWOFpVZl1ApKXuv9IbPbo4KDEyWIb00aJIFVOIo38QVIrldC+Yt1kN
+pQZELYzP1kXsK5AcdSrXMDNt1iuzrmugEZEackQ2ouxik8wHVzfpjnpIc0iu09sPX1jR5DhLBa4K
+pnBtaYma/S1BYSVPgMzoqNH5FlMC7hvtx33M2x4o82sxxqqosRjoxQIDAQABAoIBAF6HqFbTuZzw
+x7UbGC81JCwr+pEaZ9wvxS4xaAK9G130CwIcRl+2rm9hVuuj4mzu9YWPEk6ebLg08KJvit3bjCEp
+eajGnibmY8FhLXmqRUHIF7YLg0btpkZnxV00QepkIy4R9wW+C9ZwLdimcNUHiay7sg6Yr8s9RsKv
+qgmr5Qmpm+kPMFStztVpnOlU8OYfiAdhZUzllJp1RmbELvlgJQ6HMesqCH1TRD9IrQBrqDPGavP7
+D4zY3/4ATtEveLyBF8TOz6B6/jO+Ub/UcsGhM0Qg4sv9eRw11qpNq51C/2BOcXHzeh814NTHZ+u9
+42V2IYwvQJN7ZD4jdxJoykrx54ECgYEA6Ioycpi97QIgcouSKoVFt0ehU+nQM9oomG8r27cye3qM
+Y4sY5jLxdsK9510Rx/gavwTF5gtktES4iJ7fQYNwMd/pmWmOHZAARpGrRId/sPH479bsqo4aadrd
+h6SduQ6vpsgZGc227mRbv9LJbBQ0jSCE9RPRZpv3I5ZfGZxdciUCgYEAl+NK2f0qM8RT3JSZ1RK5
+1gcX2S9/orJHbpf1icLLPcdpNdwEkhPIBiF3MqdKZkvkoIF3kiDiQfraTz0nwAculZGIFggaD4DR
+1Mi9UkXnRr+VrI75DlvulGfepNPWgVRAgvEADe+EsbpDjxx/M3AQa5dLgXD+3whZ5bAt1yJMyiEC
+gYEAp1hEw7lt/LEqHqSYlKcCK8qNq/C4l4go7MIcYurslnXzr/M7APaqVFgDCAwvLqQ6wzqxHEMY
+vq4xyofijKgFRq8n0fJnhpjJyf8srI2CdBk+l4MpH/hRw9nw0JvDsZiDCdg4UBx9yANLD7mmoHPN
++b3sUN5pNJmK+f5OBAVGLk0CgYBpJY8201y404veovzPlZQSx3xJ/OjV/6cVt5riUHiUfwylnXeI
+jKsnG1nCNi96G8XdG2NkROF9HaStwD9ZX19vaX0VC2zHGL2qGYF+iCfwQUbjW2Ks/xVtpW5rGr9f
+bqzuONp5yztIMhL86pRgTo7/fJBnvoqiacyaBlnlmbghIQKBgDbJvOL9gRhz20lwyGZMacFTu5jf
+kGgS03Ev5jni0Y0aNOUQqi/IVORhPU2zWBtB//kO+8CdsPwRad1dvlKs+pAhnhyIv3nWD90aw1D6
+/YU0UsOqHsB5CG4hsrtAByB9YfKNkZjN+CQHHpmcoNyzlh7du7mXGYYKHnZHkwCH6KSP
+-----END RSA PRIVATE KEY-----
